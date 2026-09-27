@@ -601,8 +601,14 @@ def default_api_key() -> str:
 def sidebar() -> dict:
     sb = st.sidebar
     sb.markdown("### 🌿 설정")
-    api_key = sb.text_input("🔑 Gemini API 키", type="password", value=default_api_key(),
-                            help="환경변수 GEMINI_API_KEY 또는 .streamlit/secrets.toml에 넣어 두면 자동으로 채워져요.")
+    server_key = default_api_key()
+    if server_key:
+        # 서버(Secrets)에 저장된 키는 화면에 절대 내보내지 않는다 — 입력칸에 채우면 눈 아이콘으로 누구나 볼 수 있음
+        sb.success("🔑 서버에 저장된 API 키를 사용 중이에요.")
+        api_key = server_key
+    else:
+        api_key = sb.text_input("🔑 Gemini API 키", type="password",
+                                help="배포 시에는 Streamlit Secrets에 GEMINI_API_KEY를 넣어 두면 입력하지 않아도 돼요.")
     model = sb.selectbox("🤖 AI 모델", MODELS, help="고른 모델이 안 되면 다음 모델로 자동으로 바꿔 시도해요.")
     sb.markdown("#### 👤 피신고자 신분")
     status = sb.radio("피신고자 신분", list(STATUS_RULES), horizontal=True, label_visibility="collapsed",
